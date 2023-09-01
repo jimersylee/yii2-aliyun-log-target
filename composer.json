@@ -1,0 +1,27 @@
+{
+    "name": "jimersylee/yii2-aliyun-log-target",
+    "description": "适配Yii2.x框架的阿里云日志适配库",
+    "type": "library",
+    "require": {
+        "alibabacloud/aliyun-log-php-sdk": "^0.6.3",
+        "yiisoft/yii2": "^2.0.4",
+        "yidas/yii2-composer-bower-skip": "^2.0.13"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Jimersylee\\Yii2AliyunLogTarget\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "jimersylee",
+            "email": "jimersylee+github@gmail.com"
+        }
+    ],
+    "config": {
+        "allow-plugins": {
+            "yiisoft/yii2-composer": true
+        }
+    }
+}
