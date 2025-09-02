@@ -5,7 +5,8 @@
     "require": {
         "alibabacloud/aliyun-log-php-sdk": "^0.6.3",
         "yiisoft/yii2": "^2.0.4",
-        "yidas/yii2-composer-bower-skip": "^2.0.13"
+        "yidas/yii2-composer-bower-skip": "^2.0.13",
+        "php": "~7.0.0 || ~7.1.0 || ~7.2.0 || ~7.3.0 || ~7.4.0 || ~8.0.0 || ~8.1.0 || ~8.2.0 || ~8.3.0 || ~8.4.0"
     },
     "license": "MIT",
     "autoload": {
