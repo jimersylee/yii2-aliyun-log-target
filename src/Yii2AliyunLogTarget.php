@@ -18,7 +18,7 @@ class Yii2AliyunLogTarget extends Target
     public $accessKeySecret = 'your_accesskeysecret';
     public $project = 'your_project';
     public $logstore = 'your_logstore';
-    public $enableTrace=false;
+    public $enableTrace = false;
 
     public $topic = 'log';
     /**
@@ -55,11 +55,14 @@ class Yii2AliyunLogTarget extends Target
         //     *   [4] => traces (array, debug backtrace, contains the application code call stacks)
         //     *   [5] => memory usage in bytes (int, obtained by memory_get_usage()), available since version 2.0.11.
         //     * ]
-
         foreach ($this->messages as $message) {
-            $logMap['message'] = $message[0];
+            $msg = $message[0];
+            if (!is_string($msg)) {
+                $msg = json_encode($msg);
+            }
+            $logMap['message'] = $msg;
             $logMap['level'] = Logger::getLevelName($message[1]);
-            if ($this->enableTrace){
+            if ($this->enableTrace) {
                 $logMap['traceId'] = $this->getTraceId();
             }
             switch ($message[1]) {
@@ -87,7 +90,7 @@ class Yii2AliyunLogTarget extends Target
      * Obtain the traceId in the request. This is obtained from the http request, and there is no traceId in cli mode
      * @return string
      */
-    public  function getTraceId(): string
+    public function getTraceId(): string
     {
         //  traceparent header
         $traceParent = $_SERVER['HTTP_TRACEPARENT'] ?? '';
@@ -101,6 +104,4 @@ class Yii2AliyunLogTarget extends Target
         }
         return "";
     }
-
-
 }
