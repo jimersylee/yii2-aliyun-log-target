@@ -92,6 +92,16 @@ class Yii2AliyunLogTarget extends Target
      */
     public function getTraceId(): string
     {
+        // check 'traceId' or 'trace_id' header key
+        $keys_to_check = [
+            'HTTP_TRACE_ID',
+            'HTTP_TRACEID',
+        ];
+        foreach ($keys_to_check as $key) {
+            if (isset($_SERVER[$key])) {
+                return $_SERVER[$key];
+            }
+        }
         //  traceparent header
         $traceParent = $_SERVER['HTTP_TRACEPARENT'] ?? '';
         if (empty($traceParent)) {
