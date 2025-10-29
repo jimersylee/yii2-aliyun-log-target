@@ -6,6 +6,7 @@ use Aliyun_Log_Client;
 use Aliyun_Log_Exception;
 use Aliyun_Log_LoggerFactory;
 use Aliyun_Log_SimpleLogger;
+use DateTime;
 use yii\base\InvalidConfigException;
 use yii\log\Logger;
 use yii\log\Target;
@@ -62,6 +63,11 @@ class Yii2AliyunLogTarget extends Target
             }
             $logMap['message'] = $msg;
             $logMap['level'] = Logger::getLevelName($message[1]);
+            $millis= round($message[3] * 1000);
+            $datetime = new DateTime();
+            $timestamp = floor($millis / 1000);
+            $datetime->setTimestamp($timestamp);
+            $logMap['time']=$datetime->format('Y-m-d H:i:s') . '.' . str_pad($millis % 1000, 3, '0', STR_PAD_LEFT);
             if ($this->enableTrace) {
                 $logMap['traceId'] = $this->getTraceId();
             }
@@ -81,7 +87,6 @@ class Yii2AliyunLogTarget extends Target
                 default:
                     $this->logger->infoArray($logMap);
             }
-
         }
         $this->logger->logFlush();
     }
