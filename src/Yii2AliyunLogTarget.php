@@ -2,6 +2,9 @@
 
 namespace Jimersylee\Yii2AliyunLogTarget;
 
+use Aliyun_Log_Client;
+use Aliyun_Log_Exception;
+use Aliyun_Log_LoggerFactory;
 use Aliyun_Log_SimpleLogger;
 use yii\base\InvalidConfigException;
 use yii\log\Logger;
@@ -15,6 +18,7 @@ class Yii2AliyunLogTarget extends Target
     public $accessKeySecret = 'your_accesskeysecret';
     public $project = 'your_project';
     public $logstore = 'your_logstore';
+    public $enableTrace = false;
 
     public $topic = 'log';
     /**
@@ -22,6 +26,11 @@ class Yii2AliyunLogTarget extends Target
      */
     private $logger;
 
+    /**
+     * @throws InvalidConfigException
+     * @throws Aliyun_Log_Exception
+     * @throws \Exception
+     */
     public function init()
     {
         if (!isset($this->accessKeyId)) {
@@ -30,16 +39,15 @@ class Yii2AliyunLogTarget extends Target
         if (!isset($this->accessKeySecret)) {
             throw new InvalidConfigException(Yii::t('app', 'please configure your accesskeysecret'));
         }
-        // var_dump($this->endpoint, $this->accessKeyId, $this->accessKeySecret, $this->project, $this->logstore,$this->topic);
-        $client = new \Aliyun_Log_Client($this->endpoint, $this->accessKeyId, $this->accessKeySecret);
-        $this->logger = \Aliyun_Log_LoggerFactory::getLogger($client, $this->project, $this->logstore, $this->topic);
+        $client = new Aliyun_Log_Client($this->endpoint, $this->accessKeyId, $this->accessKeySecret);
+        $this->logger = Aliyun_Log_LoggerFactory::getLogger($client, $this->project, $this->logstore, $this->topic);
         parent::init();
     }
 
 
     public function export()
     {
-        //
+        // log format
         //     *   [0] => message (mixed, can be a string or some complex data, such as an exception object)
         //     *   [1] => level (integer)
         //     *   [2] => category (string)
@@ -47,11 +55,16 @@ class Yii2AliyunLogTarget extends Target
         //     *   [4] => traces (array, debug backtrace, contains the application code call stacks)
         //     *   [5] => memory usage in bytes (int, obtained by memory_get_usage()), available since version 2.0.11.
         //     * ]
-
         foreach ($this->messages as $message) {
-            $logMap['message'] = $message[0];
+            $msg = $message[0];
+            if (!is_string($msg)) {
+                $msg = json_encode($msg);
+            }
+            $logMap['message'] = $msg;
             $logMap['level'] = Logger::getLevelName($message[1]);
-           // $logMap['log'] = $message[4];
+            if ($this->enableTrace) {
+                $logMap['traceId'] = $this->getTraceId();
+            }
             switch ($message[1]) {
                 case  Logger::LEVEL_ERROR:
                     $this->logger->errorArray($logMap);
@@ -71,8 +84,34 @@ class Yii2AliyunLogTarget extends Target
 
         }
         $this->logger->logFlush();
-
     }
 
-
+    /**
+     * Obtain the traceId in the request. This is obtained from the http request, and there is no traceId in cli mode
+     * @return string
+     */
+    public function getTraceId(): string
+    {
+        // check 'traceId' or 'trace_id' header key
+        $keys_to_check = [
+            'HTTP_TRACE_ID',
+            'HTTP_TRACEID',
+        ];
+        foreach ($keys_to_check as $key) {
+            if (isset($_SERVER[$key])) {
+                return $_SERVER[$key];
+            }
+        }
+        //  traceparent header
+        $traceParent = $_SERVER['HTTP_TRACEPARENT'] ?? '';
+        if (empty($traceParent)) {
+            return "";
+        }
+        // traceparent format: 00-TRACE_ID-SPAN_ID-00
+        if (preg_match('/^[\da-fA-F]{2}-([\da-fA-F]{32})-([\da-fA-F]{16})-/', $traceParent, $matches)) {
+            return
+                $matches[1];
+        }
+        return "";
+    }
 }
