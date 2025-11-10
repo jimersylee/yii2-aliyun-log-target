@@ -59,7 +59,7 @@ class Yii2AliyunLogTarget extends Target
         foreach ($this->messages as $message) {
             $msg = $message[0];
             if (!is_string($msg)) {
-                $msg = json_encode($msg);
+                $msg = json_encode($msg,JSON_UNESCAPED_UNICODE);
             }
             $logMap['message'] = $msg;
             $logMap['level'] = Logger::getLevelName($message[1]);
