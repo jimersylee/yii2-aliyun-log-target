@@ -2,7 +2,7 @@
   "name": "jimersylee/yii2-aliyun-log-target",
   "description": "适配Yii2.x框架的阿里云日志适配库",
   "type": "library",
-  "version": "1.3.1",
+  "version": "1.4.0",
   "require": {
     "alibabacloud/aliyun-log-php-sdk": "^0.6.3",
     "yiisoft/yii2": "^2.0.4",
