@@ -28,6 +28,11 @@ class Yii2AliyunLogTarget extends Target
     private $logger;
 
     /**
+     * @var string|null 存储 CLI 模式下生成的 traceId
+     */
+    private static $cliTraceId = null;
+
+    /**
      * @throws InvalidConfigException
      * @throws Aliyun_Log_Exception
      * @throws \Exception
@@ -109,14 +114,28 @@ class Yii2AliyunLogTarget extends Target
         }
         //  traceparent header
         $traceParent = $_SERVER['HTTP_TRACEPARENT'] ?? '';
-        if (empty($traceParent)) {
-            return "";
+        if (!empty($traceParent)) {
+            // traceparent format: 00-TRACE_ID-SPAN_ID-00
+            if (preg_match('/^[\da-fA-F]{2}-([\da-fA-F]{32})-([\da-fA-F]{16})-/', $traceParent, $matches)) {
+                return $matches[1];
+            }
         }
-        // traceparent format: 00-TRACE_ID-SPAN_ID-00
-        if (preg_match('/^[\da-fA-F]{2}-([\da-fA-F]{32})-([\da-fA-F]{16})-/', $traceParent, $matches)) {
-            return
-                $matches[1];
+        // CLI mode: auto-generate traceId and reuse it during the same command execution
+        if (PHP_SAPI === 'cli') {
+            if (self::$cliTraceId === null) {
+                self::$cliTraceId = $this->generateTraceId();
+            }
+            return self::$cliTraceId;
         }
         return "";
+    }
+
+    /**
+     * Generate a unique traceId for CLI mode
+     * @return string
+     */
+    private function generateTraceId(): string
+    {
+        return bin2hex(random_bytes(16));
     }
 }
