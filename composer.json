@@ -2,12 +2,12 @@
   "name": "jimersylee/yii2-aliyun-log-target",
   "description": "适配Yii2.x框架的阿里云日志适配库",
   "type": "library",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "require": {
     "alibabacloud/aliyun-log-php-sdk": "^0.6.3",
     "yiisoft/yii2": "^2.0.4",
     "yidas/yii2-composer-bower-skip": "^2.0.13",
-    "php": "~7.0.0 || ~7.1.0 || ~7.2.0 || ~7.3.0 || ~7.4.0 || ~8.0.0 || ~8.1.0 || ~8.2.0 || ~8.3.0 || ~8.4.0",
+    "php": "~7.0.0 || ~7.1.0 || ~7.2.0 || ~7.3.0 || ~7.4.0 || ~8.0.0 || ~8.1.0 || ~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0",
     "ext-json": "*"
   },
   "license": "MIT",
